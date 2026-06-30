@@ -14,7 +14,297 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      assignments: {
+        Row: {
+          created_at: string
+          deadline: string | null
+          file_url: string | null
+          id: string
+          notes: string | null
+          priority: string
+          progress: number
+          status: string
+          subject: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deadline?: string | null
+          file_url?: string | null
+          id?: string
+          notes?: string | null
+          priority?: string
+          progress?: number
+          status?: string
+          subject?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deadline?: string | null
+          file_url?: string | null
+          id?: string
+          notes?: string | null
+          priority?: string
+          progress?: number
+          status?: string
+          subject?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      exams: {
+        Row: {
+          created_at: string
+          exam_date: string
+          exam_time: string | null
+          id: string
+          notes: string | null
+          prep_status: string
+          revision_progress: number
+          room: string | null
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          exam_date: string
+          exam_time?: string | null
+          id?: string
+          notes?: string | null
+          prep_status?: string
+          revision_progress?: number
+          room?: string | null
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          exam_date?: string
+          exam_time?: string | null
+          id?: string
+          notes?: string | null
+          prep_status?: string
+          revision_progress?: number
+          room?: string | null
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      internships: {
+        Row: {
+          applied_date: string | null
+          company: string
+          created_at: string
+          id: string
+          interview_date: string | null
+          location: string | null
+          notes: string | null
+          position: string
+          resume_used: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          applied_date?: string | null
+          company: string
+          created_at?: string
+          id?: string
+          interview_date?: string | null
+          location?: string | null
+          notes?: string | null
+          position: string
+          resume_used?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          applied_date?: string | null
+          company?: string
+          created_at?: string
+          id?: string
+          interview_date?: string | null
+          location?: string | null
+          notes?: string | null
+          position?: string
+          resume_used?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      portfolio_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          issued_on: string | null
+          issuer: string | null
+          kind: string
+          title: string
+          updated_at: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          issued_on?: string | null
+          issuer?: string | null
+          kind: string
+          title: string
+          updated_at?: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          issued_on?: string | null
+          issuer?: string | null
+          kind?: string
+          title?: string
+          updated_at?: string
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          course: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          university: string | null
+          updated_at: string
+          year: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          course?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          university?: string | null
+          updated_at?: string
+          year?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          course?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          university?: string | null
+          updated_at?: string
+          year?: string | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          deadline: string | null
+          demo_link: string | null
+          description: string | null
+          github_link: string | null
+          id: string
+          name: string
+          notes: string | null
+          progress: number
+          team_members: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deadline?: string | null
+          demo_link?: string | null
+          description?: string | null
+          github_link?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          progress?: number
+          team_members?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deadline?: string | null
+          demo_link?: string | null
+          description?: string | null
+          github_link?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          progress?: number
+          team_members?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subjects: {
+        Row: {
+          attended_classes: number
+          code: string | null
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          target_percentage: number
+          total_classes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attended_classes?: number
+          code?: string | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          target_percentage?: number
+          total_classes?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attended_classes?: number
+          code?: string | null
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          target_percentage?: number
+          total_classes?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
