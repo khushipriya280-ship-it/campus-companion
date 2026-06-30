@@ -1,0 +1,3 @@
+ALTER TABLE public.subjects 
+  ADD COLUMN IF NOT EXISTS faculty TEXT,
+  ADD COLUMN IF NOT EXISTS semester TEXT;

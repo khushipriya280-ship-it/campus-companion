@@ -275,8 +275,10 @@ export type Database = {
           code: string | null
           color: string | null
           created_at: string
+          faculty: string | null
           id: string
           name: string
+          semester: string | null
           target_percentage: number
           total_classes: number
           updated_at: string
@@ -287,8 +289,10 @@ export type Database = {
           code?: string | null
           color?: string | null
           created_at?: string
+          faculty?: string | null
           id?: string
           name: string
+          semester?: string | null
           target_percentage?: number
           total_classes?: number
           updated_at?: string
@@ -299,8 +303,10 @@ export type Database = {
           code?: string | null
           color?: string | null
           created_at?: string
+          faculty?: string | null
           id?: string
           name?: string
+          semester?: string | null
           target_percentage?: number
           total_classes?: number
           updated_at?: string
