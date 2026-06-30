@@ -130,7 +130,7 @@ function Dashboard() {
 
   const stats = [
     { label: "Assignments due", value: String(dueCount), icon: BookOpen, tint: "primary" as const },
-    { label: "Attendance", value: "—", icon: CalendarCheck, tint: "success" as const },
+    { label: "Attendance", value: attendance.count > 0 ? `${attendance.overall}%` : "—", icon: CalendarCheck, tint: attendance.overall >= 85 ? "success" as const : attendance.overall >= 75 ? "warning" as const : "info" as const },
     { label: "Upcoming exams", value: "0", icon: GraduationCap, tint: "warning" as const },
     { label: "Active projects", value: "0", icon: FolderKanban, tint: "info" as const },
   ];
