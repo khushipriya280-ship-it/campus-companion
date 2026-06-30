@@ -559,7 +559,7 @@ function SubjectDialog({
   });
 
   // Reset form when dialog opens
-  useMemo(() => {
+  useEffect(() => {
     if (open) {
       setForm({
         name: initial?.name ?? "",
