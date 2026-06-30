@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { format, isToday, isPast, isTomorrow, differenceInCalendarDays } from "date-fns";
 import {
   Plus,
   BookOpen,
@@ -11,16 +13,30 @@ import {
   TrendingUp,
   Clock,
   Sparkles,
+  CheckCircle2,
+  Flag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard · Campus Buddy" }] }),
   component: Dashboard,
 });
+
+type DashAssignment = {
+  id: string;
+  title: string;
+  subject: string | null;
+  priority: "low" | "medium" | "high";
+  status: "pending" | "in_progress" | "completed" | "archived";
+  deadline: string | null;
+};
 
 function Dashboard() {
   const { user } = useAuth();
@@ -42,12 +58,52 @@ function Dashboard() {
     day: "numeric",
   });
 
+  const { data: assignments = [] } = useQuery({
+    queryKey: ["assignments-dashboard", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("assignments")
+        .select("id,title,subject,priority,status,deadline");
+      if (error) throw error;
+      return (data ?? []) as DashAssignment[];
+    },
+  });
+
+  const counts = (() => {
+    const now = new Date();
+    let dueToday = 0,
+      upcoming = 0,
+      overdue = 0,
+      completed = 0;
+    assignments.forEach((a) => {
+      if (a.status === "archived") return;
+      if (a.status === "completed") {
+        completed++;
+        return;
+      }
+      if (!a.deadline) return;
+      const d = new Date(a.deadline);
+      if (isToday(d)) dueToday++;
+      else if (isPast(d) && d < now) overdue++;
+      else if (d > now) upcoming++;
+    });
+    return { dueToday, upcoming, overdue, completed };
+  })();
+
+  const upcomingList = assignments
+    .filter((a) => a.status !== "completed" && a.status !== "archived" && a.deadline)
+    .sort((a, b) => (a.deadline ?? "").localeCompare(b.deadline ?? ""))
+    .slice(0, 5);
+
+  const dueCount = counts.dueToday + counts.upcoming + counts.overdue;
+
   const stats = [
-    { label: "Assignments due", value: "0", icon: BookOpen, tint: "primary" },
-    { label: "Attendance", value: "—", icon: CalendarCheck, tint: "success" },
-    { label: "Upcoming exams", value: "0", icon: GraduationCap, tint: "warning" },
-    { label: "Active projects", value: "0", icon: FolderKanban, tint: "info" },
-  ] as const;
+    { label: "Assignments due", value: String(dueCount), icon: BookOpen, tint: "primary" as const },
+    { label: "Attendance", value: "—", icon: CalendarCheck, tint: "success" as const },
+    { label: "Upcoming exams", value: "0", icon: GraduationCap, tint: "warning" as const },
+    { label: "Active projects", value: "0", icon: FolderKanban, tint: "info" as const },
+  ];
 
   const quickActions = [
     { label: "Add assignment", to: "/assignments", icon: BookOpen },
@@ -60,7 +116,6 @@ function Dashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Hero greeting */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -82,7 +137,6 @@ function Dashboard() {
         </div>
       </motion.div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         {stats.map((s, i) => (
           <motion.div
@@ -94,12 +148,7 @@ function Dashboard() {
             <Card className="border-border/60 shadow-soft">
               <CardContent className="p-4 md:p-5">
                 <div className="flex items-center justify-between">
-                  <div
-                    className={
-                      "grid h-9 w-9 place-items-center rounded-xl " +
-                      tintBg(s.tint)
-                    }
-                  >
+                  <div className={"grid h-9 w-9 place-items-center rounded-xl " + tintBg(s.tint)}>
                     <s.icon className={"h-[18px] w-[18px] " + tintText(s.tint)} />
                   </div>
                   <TrendingUp className="h-4 w-4 text-muted-foreground/60" />
@@ -112,7 +161,19 @@ function Dashboard() {
         ))}
       </div>
 
-      {/* Quick actions */}
+      {/* Assignment summary */}
+      <section>
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+          <BookOpen className="h-4 w-4" /> Assignments overview
+        </h2>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <MiniStat label="Due today" value={counts.dueToday} icon={Clock} tone="warning" to="/assignments" />
+          <MiniStat label="Upcoming" value={counts.upcoming} icon={BookOpen} tone="primary" to="/assignments" />
+          <MiniStat label="Overdue" value={counts.overdue} icon={Flag} tone="destructive" to="/assignments" />
+          <MiniStat label="Completed" value={counts.completed} icon={CheckCircle2} tone="success" to="/assignments" />
+        </div>
+      </section>
+
       <section>
         <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
           <Plus className="h-4 w-4" /> Quick actions
@@ -131,7 +192,6 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* Two-column content */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
         <Card className="border-border/60 shadow-soft lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
@@ -141,18 +201,61 @@ function Dashboard() {
             </Link>
           </CardHeader>
           <CardContent>
-            <EmptyState
-              icon={BookOpen}
-              title="No assignments yet"
-              description="Add your first assignment to start tracking deadlines."
-              cta={
-                <Link to="/assignments">
-                  <Button size="sm" className="gradient-primary text-primary-foreground">
-                    <Plus className="mr-1 h-4 w-4" /> Add assignment
-                  </Button>
-                </Link>
-              }
-            />
+            {upcomingList.length === 0 ? (
+              <EmptyState
+                icon={BookOpen}
+                title="No upcoming assignments"
+                description="You're all caught up. Add a new task to start tracking deadlines."
+                cta={
+                  <Link to="/assignments">
+                    <Button size="sm" className="gradient-primary text-primary-foreground">
+                      <Plus className="mr-1 h-4 w-4" /> Add assignment
+                    </Button>
+                  </Link>
+                }
+              />
+            ) : (
+              <ul className="divide-y">
+                {upcomingList.map((a) => {
+                  const d = a.deadline ? new Date(a.deadline) : null;
+                  const tone = !d
+                    ? "muted"
+                    : isToday(d)
+                      ? "warning"
+                      : d < new Date()
+                        ? "destructive"
+                        : "primary";
+                  const label = !d
+                    ? "No deadline"
+                    : isToday(d)
+                      ? `Today · ${format(d, "h:mm a")}`
+                      : isTomorrow(d)
+                        ? `Tomorrow · ${format(d, "h:mm a")}`
+                        : d < new Date()
+                          ? `Overdue · ${Math.abs(differenceInCalendarDays(d, new Date()))}d ago`
+                          : format(d, "MMM d · h:mm a");
+                  return (
+                    <li key={a.id} className="flex items-center gap-3 py-2.5">
+                      <div className={cn("grid h-9 w-9 place-items-center rounded-xl", tintBg("primary"))}>
+                        <BookOpen className={cn("h-4 w-4", tintText("primary"))} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate text-sm font-medium">{a.title}</span>
+                          {a.subject && (
+                            <span className="hidden text-xs text-muted-foreground sm:inline">· {a.subject}</span>
+                          )}
+                        </div>
+                        <div className={cn("text-xs", toneText(tone))}>{label}</div>
+                      </div>
+                      <Badge variant="outline" className={cn("border text-[10px]", priorityClass(a.priority))}>
+                        {a.priority}
+                      </Badge>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </CardContent>
         </Card>
 
@@ -197,6 +300,59 @@ function Dashboard() {
       </div>
     </div>
   );
+}
+
+function MiniStat({
+  label,
+  value,
+  icon: Icon,
+  tone,
+  to,
+}: {
+  label: string;
+  value: number;
+  icon: React.ComponentType<{ className?: string }>;
+  tone: "primary" | "success" | "warning" | "destructive";
+  to: string;
+}) {
+  const bg = {
+    primary: "bg-primary/10 text-primary",
+    success: "bg-success/10 text-success",
+    warning: "bg-warning/15 text-warning",
+    destructive: "bg-destructive/10 text-destructive",
+  }[tone];
+  return (
+    <Link to={to}>
+      <Card className="border-border/60 shadow-soft transition hover:shadow-elevated">
+        <CardContent className="flex items-center gap-3 p-4">
+          <div className={cn("grid h-10 w-10 place-items-center rounded-xl", bg)}>
+            <Icon className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="text-xl font-bold leading-tight">{value}</div>
+            <div className="text-xs text-muted-foreground">{label}</div>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+
+function priorityClass(p: "low" | "medium" | "high") {
+  return {
+    high: "bg-destructive/10 text-destructive border-destructive/20",
+    medium: "bg-warning/15 text-warning border-warning/20",
+    low: "bg-success/10 text-success border-success/20",
+  }[p];
+}
+
+function toneText(t: "muted" | "warning" | "destructive" | "primary") {
+  return {
+    muted: "text-muted-foreground",
+    warning: "text-warning",
+    destructive: "text-destructive",
+    primary: "text-primary",
+  }[t];
 }
 
 function tintBg(tint: string) {
@@ -274,5 +430,4 @@ function RingProgress({ value }: { value: number }) {
   );
 }
 
-// Suppress unused warning for Progress (kept for future use)
 void Progress;
