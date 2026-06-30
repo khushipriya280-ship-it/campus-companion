@@ -70,6 +70,36 @@ function Dashboard() {
     },
   });
 
+  const { data: subjects = [] } = useQuery({
+    queryKey: ["subjects-dashboard", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("subjects")
+        .select("id,name,attended_classes,total_classes,target_percentage");
+      if (error) throw error;
+      return (data ?? []) as Array<{
+        id: string; name: string;
+        attended_classes: number; total_classes: number; target_percentage: number;
+      }>;
+    },
+  });
+
+  const attendance = (() => {
+    if (subjects.length === 0)
+      return { overall: 0, count: 0, lowest: null as null | { name: string; pct: number }, status: "—" };
+    const totA = subjects.reduce((s, x) => s + x.attended_classes, 0);
+    const totT = subjects.reduce((s, x) => s + x.total_classes, 0);
+    const overall = totT > 0 ? Math.round((totA / totT) * 1000) / 10 : 0;
+    const enriched = subjects.map((s) => ({
+      name: s.name,
+      pct: s.total_classes > 0 ? Math.round((s.attended_classes / s.total_classes) * 1000) / 10 : 0,
+    }));
+    const lowest = [...enriched].sort((a, b) => a.pct - b.pct)[0];
+    const status = overall >= 85 ? "Safe" : overall >= 75 ? "Warning" : "Critical";
+    return { overall, count: subjects.length, lowest, status };
+  })();
+
   const counts = (() => {
     const now = new Date();
     let dueToday = 0,
@@ -100,7 +130,7 @@ function Dashboard() {
 
   const stats = [
     { label: "Assignments due", value: String(dueCount), icon: BookOpen, tint: "primary" as const },
-    { label: "Attendance", value: "—", icon: CalendarCheck, tint: "success" as const },
+    { label: "Attendance", value: attendance.count > 0 ? `${attendance.overall}%` : "—", icon: CalendarCheck, tint: attendance.overall >= 85 ? "success" as const : attendance.overall >= 75 ? "warning" as const : "info" as const },
     { label: "Upcoming exams", value: "0", icon: GraduationCap, tint: "warning" as const },
     { label: "Active projects", value: "0", icon: FolderKanban, tint: "info" as const },
   ];
@@ -259,20 +289,43 @@ function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 shadow-soft">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Attendance</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center py-6">
-            <RingProgress value={0} />
-            <p className="mt-3 text-center text-xs text-muted-foreground">
-              Add subjects in the attendance tracker to see your % here.
-            </p>
-            <Link to="/attendance" className="mt-3">
-              <Button size="sm" variant="outline">Set up attendance</Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <Link to="/attendance" className="lg:col-span-1">
+          <Card className="h-full border-border/60 shadow-soft transition hover:shadow-elevated">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-base">Attendance</CardTitle>
+              {attendance.count > 0 && (
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[10px]",
+                    attendance.status === "Safe" && "border-success/30 bg-success/10 text-success",
+                    attendance.status === "Warning" && "border-warning/30 bg-warning/15 text-warning",
+                    attendance.status === "Critical" && "border-destructive/30 bg-destructive/10 text-destructive",
+                  )}
+                >
+                  {attendance.status}
+                </Badge>
+              )}
+            </CardHeader>
+            <CardContent className="flex flex-col items-center justify-center py-6">
+              <RingProgress value={attendance.overall} />
+              {attendance.count === 0 ? (
+                <p className="mt-3 text-center text-xs text-muted-foreground">
+                  Add subjects in the attendance tracker to see your % here.
+                </p>
+              ) : (
+                <div className="mt-3 w-full space-y-1 text-center text-xs text-muted-foreground">
+                  <div>{attendance.count} subject{attendance.count === 1 ? "" : "s"} tracked</div>
+                  {attendance.lowest && (
+                    <div>
+                      Lowest: <span className="font-medium text-foreground">{attendance.lowest.name}</span> · {attendance.lowest.pct}%
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </Link>
 
         <Card className="border-border/60 shadow-soft lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
