@@ -70,6 +70,36 @@ function Dashboard() {
     },
   });
 
+  const { data: subjects = [] } = useQuery({
+    queryKey: ["subjects-dashboard", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("subjects")
+        .select("id,name,attended_classes,total_classes,target_percentage");
+      if (error) throw error;
+      return (data ?? []) as Array<{
+        id: string; name: string;
+        attended_classes: number; total_classes: number; target_percentage: number;
+      }>;
+    },
+  });
+
+  const attendance = (() => {
+    if (subjects.length === 0)
+      return { overall: 0, count: 0, lowest: null as null | { name: string; pct: number }, status: "—" };
+    const totA = subjects.reduce((s, x) => s + x.attended_classes, 0);
+    const totT = subjects.reduce((s, x) => s + x.total_classes, 0);
+    const overall = totT > 0 ? Math.round((totA / totT) * 1000) / 10 : 0;
+    const enriched = subjects.map((s) => ({
+      name: s.name,
+      pct: s.total_classes > 0 ? Math.round((s.attended_classes / s.total_classes) * 1000) / 10 : 0,
+    }));
+    const lowest = [...enriched].sort((a, b) => a.pct - b.pct)[0];
+    const status = overall >= 85 ? "Safe" : overall >= 75 ? "Warning" : "Critical";
+    return { overall, count: subjects.length, lowest, status };
+  })();
+
   const counts = (() => {
     const now = new Date();
     let dueToday = 0,
