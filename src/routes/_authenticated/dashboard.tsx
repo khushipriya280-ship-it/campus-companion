@@ -289,20 +289,43 @@ function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 shadow-soft">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Attendance</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center py-6">
-            <RingProgress value={0} />
-            <p className="mt-3 text-center text-xs text-muted-foreground">
-              Add subjects in the attendance tracker to see your % here.
-            </p>
-            <Link to="/attendance" className="mt-3">
-              <Button size="sm" variant="outline">Set up attendance</Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <Link to="/attendance" className="lg:col-span-1">
+          <Card className="h-full border-border/60 shadow-soft transition hover:shadow-elevated">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-base">Attendance</CardTitle>
+              {attendance.count > 0 && (
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[10px]",
+                    attendance.status === "Safe" && "border-success/30 bg-success/10 text-success",
+                    attendance.status === "Warning" && "border-warning/30 bg-warning/15 text-warning",
+                    attendance.status === "Critical" && "border-destructive/30 bg-destructive/10 text-destructive",
+                  )}
+                >
+                  {attendance.status}
+                </Badge>
+              )}
+            </CardHeader>
+            <CardContent className="flex flex-col items-center justify-center py-6">
+              <RingProgress value={attendance.overall} />
+              {attendance.count === 0 ? (
+                <p className="mt-3 text-center text-xs text-muted-foreground">
+                  Add subjects in the attendance tracker to see your % here.
+                </p>
+              ) : (
+                <div className="mt-3 w-full space-y-1 text-center text-xs text-muted-foreground">
+                  <div>{attendance.count} subject{attendance.count === 1 ? "" : "s"} tracked</div>
+                  {attendance.lowest && (
+                    <div>
+                      Lowest: <span className="font-medium text-foreground">{attendance.lowest.name}</span> · {attendance.lowest.pct}%
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </Link>
 
         <Card className="border-border/60 shadow-soft lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
