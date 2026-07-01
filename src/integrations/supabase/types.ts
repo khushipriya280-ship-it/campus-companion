@@ -64,41 +64,71 @@ export type Database = {
       }
       exams: {
         Row: {
+          chapters_completed: number
+          chapters_total: number
           created_at: string
+          end_time: string | null
           exam_date: string
           exam_time: string | null
+          exam_type: string
+          expected_marks: number | null
+          faculty: string | null
           id: string
+          max_marks: number | null
           notes: string | null
+          passing_marks: number | null
           prep_status: string
           revision_progress: number
           room: string | null
+          status: string
           subject: string
+          title: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          chapters_completed?: number
+          chapters_total?: number
           created_at?: string
+          end_time?: string | null
           exam_date: string
           exam_time?: string | null
+          exam_type?: string
+          expected_marks?: number | null
+          faculty?: string | null
           id?: string
+          max_marks?: number | null
           notes?: string | null
+          passing_marks?: number | null
           prep_status?: string
           revision_progress?: number
           room?: string | null
+          status?: string
           subject: string
+          title?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          chapters_completed?: number
+          chapters_total?: number
           created_at?: string
+          end_time?: string | null
           exam_date?: string
           exam_time?: string | null
+          exam_type?: string
+          expected_marks?: number | null
+          faculty?: string | null
           id?: string
+          max_marks?: number | null
           notes?: string | null
+          passing_marks?: number | null
           prep_status?: string
           revision_progress?: number
           room?: string | null
+          status?: string
           subject?: string
+          title?: string | null
           updated_at?: string
           user_id?: string
         }
