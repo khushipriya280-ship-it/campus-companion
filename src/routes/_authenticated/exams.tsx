@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   format,
   isToday,
-  isPast,
+  isPast as _isPast,
   isSameDay,
   isSameMonth,
   startOfMonth,
