@@ -389,19 +389,108 @@ function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 shadow-soft">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <CardTitle className="text-base">Upcoming exams</CardTitle>
-            <Link to="/exams" className="text-xs text-primary hover:underline">View all</Link>
-          </CardHeader>
-          <CardContent>
-            <EmptyState icon={Clock} title="No exams scheduled" description="Add upcoming exams to see countdowns." />
-          </CardContent>
-        </Card>
+        <Link to="/exams">
+          <Card className="h-full border-border/60 shadow-soft transition hover:shadow-elevated">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-base">Next exam countdown</CardTitle>
+              <span className="text-xs text-primary hover:underline">Open planner →</span>
+            </CardHeader>
+            <CardContent>
+              {nextExam ? (
+                <NextExamWidget
+                  subject={nextExam.subject}
+                  title={nextExam.title}
+                  dt={nextExam._dt}
+                  now={now}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="text-3xl">🎉</div>
+                  <div className="mt-2 text-sm font-semibold">No upcoming exams</div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    You're all caught up!
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </Link>
       </div>
     </div>
   );
 }
+
+function NextExamWidget({
+  subject,
+  title,
+  dt,
+  now,
+}: {
+  subject: string;
+  title: string | null;
+  dt: Date;
+  now: Date;
+}) {
+  const ms = Math.max(0, differenceInMilliseconds(dt, now));
+  const totalMin = Math.floor(ms / 60000);
+  const days = Math.floor(totalMin / (60 * 24));
+  const hours = Math.floor((totalMin - days * 60 * 24) / 60);
+  const mins = totalMin - days * 60 * 24 - hours * 60;
+  const tone =
+    ms <= 0
+      ? "destructive"
+      : days < 3
+        ? "destructive"
+        : days < 7
+          ? "warning"
+          : days < 30
+            ? "primary"
+            : "success";
+  return (
+    <div className="space-y-3">
+      <div>
+        <div className="truncate text-base font-semibold">{title ?? subject}</div>
+        <div className="text-xs text-muted-foreground">
+          📅 {format(dt, "d MMM yyyy")} • {format(dt, "h:mm a")}
+        </div>
+      </div>
+      <div className="rounded-2xl border bg-muted/30 p-3">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">⏳ Starts in</div>
+        <div className="mt-1 flex items-end gap-3">
+          <CountdownStat value={days} label="Days" tone={tone} />
+          <CountdownStat value={hours} label="Hours" tone={tone} />
+          <CountdownStat value={mins} label="Min" tone={tone} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CountdownStat({
+  value,
+  label,
+  tone,
+}: {
+  value: number;
+  label: string;
+  tone: "destructive" | "warning" | "primary" | "success";
+}) {
+  const color = {
+    destructive: "text-destructive",
+    warning: "text-warning",
+    primary: "text-primary",
+    success: "text-success",
+  }[tone];
+  return (
+    <div className="text-center">
+      <div className={cn("text-2xl font-bold tabular-nums", color)}>
+        {value.toString().padStart(2, "0")}
+      </div>
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+    </div>
+  );
+}
+
 
 function MiniStat({
   label,
