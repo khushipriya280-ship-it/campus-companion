@@ -86,6 +86,53 @@ function Dashboard() {
     },
   });
 
+  const { data: exams = [] } = useQuery({
+    queryKey: ["exams-dashboard", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("exams")
+        .select("id,subject,title,exam_type,exam_date,exam_time,status,revision_progress,room");
+      if (error) throw error;
+      return (data ?? []) as Array<{
+        id: string;
+        subject: string;
+        title: string | null;
+        exam_type: string;
+        exam_date: string;
+        exam_time: string | null;
+        status: string;
+        revision_progress: number;
+        room: string | null;
+      }>;
+    },
+  });
+
+  // Live clock for exam countdown
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(new Date()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const examEnriched = exams.map((e) => {
+    const t = e.exam_time ?? "09:00:00";
+    const dt = new Date(`${e.exam_date}T${t.length === 5 ? t + ":00" : t}`);
+    let computed: "upcoming" | "completed" | "missed" = e.status as "upcoming" | "completed" | "missed";
+    if (computed !== "completed") {
+      computed = differenceInMilliseconds(now, dt) > 6 * 60 * 60 * 1000 ? "missed" : "upcoming";
+    }
+    return { ...e, _dt: dt, _computed: computed };
+  });
+  const nextExam = examEnriched
+    .filter((e) => e._computed === "upcoming")
+    .sort((a, b) => a._dt.getTime() - b._dt.getTime())[0];
+  const examCounts = {
+    upcoming: examEnriched.filter((e) => e._computed === "upcoming").length,
+    today: examEnriched.filter((e) => isToday(e._dt)).length,
+    completed: examEnriched.filter((e) => e._computed === "completed").length,
+  };
+
   const attendance = (() => {
     if (subjects.length === 0)
       return { overall: 0, count: 0, lowest: null as null | { name: string; pct: number }, status: "—" };
