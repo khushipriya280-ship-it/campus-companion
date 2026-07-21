@@ -1,0 +1,47 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Install Bun 🚀
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies 📦
+        run: bun install --frozen-lockfile
+
+      - name: Build 🔧
+        run: bun run build
+
+      - name: Handle Single Page Application (SPA) routing 404 fallback 🔀
+        run: |
+          if [ -d ".output/public" ]; then
+            echo "Deploying .output/public"
+            echo "DEPLOY_DIR=.output/public" >> $GITHUB_ENV
+            cp .output/public/index.html .output/public/404.html || true
+          elif [ -d "dist" ]; then
+            echo "Deploying dist"
+            echo "DEPLOY_DIR=dist" >> $GITHUB_ENV
+            cp dist/index.html dist/404.html || true
+          else
+            echo "Could not find build output folder!"
+            exit 1
+          fi
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: ${{ env.DEPLOY_DIR }}
+          branch: gh-pages
