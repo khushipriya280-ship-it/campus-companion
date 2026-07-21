@@ -25,23 +25,54 @@ jobs:
       - name: Build 🔧
         run: bun run build
 
-      - name: Handle Single Page Application (SPA) routing 404 fallback 🔀
+      - name: Prepare deployment folder 📁
         run: |
-          if [ -d ".output/public" ]; then
-            echo "Deploying .output/public"
-            echo "DEPLOY_DIR=.output/public" >> $GITHUB_ENV
-            cp .output/public/index.html .output/public/404.html || true
-          elif [ -d "dist" ]; then
-            echo "Deploying dist"
-            echo "DEPLOY_DIR=dist" >> $GITHUB_ENV
-            cp dist/index.html dist/404.html || true
-          else
-            echo "Could not find build output folder!"
+          # TanStack Start (without Nitro) outputs client assets to dist/client/
+          DEPLOY_DIR="dist/client"
+
+          if [ ! -d "$DEPLOY_DIR" ]; then
+            echo "Could not find build output folder: $DEPLOY_DIR"
             exit 1
           fi
+
+          # Find the hashed main JS entry and CSS file
+          MAIN_JS=$(basename $(ls $DEPLOY_DIR/assets/index-*.js))
+          MAIN_CSS=$(basename $(ls $DEPLOY_DIR/assets/styles-*.css))
+
+          echo "Main JS: $MAIN_JS"
+          echo "Main CSS: $MAIN_CSS"
+
+          # Generate index.html — TanStack Start expects the server to render this,
+          # but since GitHub Pages is static, we provide a minimal SPA shell that
+          # lets the client-side router take over.
+          cat > "$DEPLOY_DIR/index.html" << HTMLEOF
+          <!DOCTYPE html>
+          <html lang="en">
+            <head>
+              <meta charset="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <title>Campus Buddy — Your Complete Student Life Manager</title>
+              <meta name="description" content="Campus Buddy is the all-in-one student productivity app for assignments, attendance, exams, projects, internships and career prep." />
+              <link rel="preconnect" href="https://fonts.googleapis.com" />
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+              <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" />
+              <link rel="stylesheet" href="/campus-companion/assets/${MAIN_CSS}" />
+            </head>
+            <body>
+              <div id="root"></div>
+              <script type="module" async src="/campus-companion/assets/${MAIN_JS}"></script>
+            </body>
+          </html>
+          HTMLEOF
+
+          # Copy index.html as 404.html for SPA client-side routing fallback
+          cp "$DEPLOY_DIR/index.html" "$DEPLOY_DIR/404.html"
+
+          echo "DEPLOY_DIR=$DEPLOY_DIR" >> $GITHUB_ENV
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: ${{ env.DEPLOY_DIR }}
           branch: gh-pages
+
