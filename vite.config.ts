@@ -10,9 +10,13 @@ export default defineConfig({
   vite: {
     base: process.env.NODE_ENV === "production" ? "/campus-companion/" : "/",
   },
+  // Disable Nitro — GitHub Pages is a static host and cannot run an SSR server.
+  // The deploy workflow generates a fallback index.html that bootstraps the SPA.
+  nitro: false,
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
   },
 });
+
