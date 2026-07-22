@@ -17,18 +17,6 @@ console.log("Generating index.html & 404.html...");
 console.log("Main JS:", mainJs);
 console.log("Main CSS:", mainCss);
 
-const tsrBootstrap = `<script>
-      window.$_TSR = window.$_TSR || {
-        h: function() { this.hydrated = true; if (this.c) this.c(); },
-        e: function() { this.streamEnded = true; if (this.c) this.c(); },
-        c: function() { if (this.hydrated && this.streamEnded) delete window.$_TSR; },
-        p: function(s) { !this.initialized ? this.buffer.push(s) : s(); },
-        buffer: [],
-        initialized: false,
-        router: { matches: [], manifest: {}, dehydratedData: {} }
-      };
-    </script>`;
-
 const htmlContent = `<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -39,7 +27,6 @@ const htmlContent = `<!DOCTYPE html>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" />
-    ${tsrBootstrap}
     ${mainCss ? `<link rel="stylesheet" href="/assets/${mainCss}" />` : ""}
   </head>
   <body>
