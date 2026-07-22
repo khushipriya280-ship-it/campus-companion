@@ -8,7 +8,7 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   vite: {
-    base: process.env.NODE_ENV === "production" ? "/campus-companion/" : "/",
+    base: "/",
   },
   // Disable Nitro — GitHub Pages is a static host and cannot run an SSR server.
   // The deploy workflow generates a fallback index.html that bootstraps the SPA.
