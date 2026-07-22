@@ -56,6 +56,17 @@ jobs:
               <link rel="preconnect" href="https://fonts.googleapis.com" />
               <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
               <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" />
+              <script>
+                window.$_TSR = window.$_TSR || {
+                  h: function() { this.hydrated = true; if (this.c) this.c(); },
+                  e: function() { this.streamEnded = true; if (this.c) this.c(); },
+                  c: function() { if (this.hydrated && this.streamEnded) delete window.$_TSR; },
+                  p: function(s) { !this.initialized ? this.buffer.push(s) : s(); },
+                  buffer: [],
+                  initialized: false,
+                  router: { matches: [], manifest: {}, dehydratedData: {} }
+                };
+              </script>
               <link rel="stylesheet" href="/assets/${MAIN_CSS}" />
             </head>
             <body>
