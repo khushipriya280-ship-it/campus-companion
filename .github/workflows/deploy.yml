@@ -68,6 +68,9 @@ jobs:
           # Copy index.html as 404.html for SPA client-side routing fallback
           cp "$DEPLOY_DIR/index.html" "$DEPLOY_DIR/404.html"
 
+          # Copy vercel.json so Vercel ignores gh-pages branch builds
+          cp vercel.json "$DEPLOY_DIR/vercel.json"
+
           echo "DEPLOY_DIR=$DEPLOY_DIR" >> $GITHUB_ENV
 
       - name: Deploy 🚀
