@@ -1,0 +1,1 @@
+-- Refer to root supabase_setup.sql file for full database schema.
