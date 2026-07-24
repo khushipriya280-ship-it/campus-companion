@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { GraduationCap, Loader2, Mail, Lock, User as UserIcon, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
