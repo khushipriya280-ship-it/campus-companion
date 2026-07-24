@@ -1,1 +1,0 @@
-import{s as e}from"./utils-CzODWYOG.js";import{t}from"./folder-kanban-lxsB-2aN.js";import{t as n}from"./coming-soon-CmGmMEv8.js";var r=e(),i=()=>(0,r.jsx)(n,{icon:t,title:`Project Manager`,description:`Track project progress, team, GitHub & demo links — coming next.`});export{i as component};
