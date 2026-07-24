@@ -556,7 +556,7 @@ function ExamsPage() {
           <FilteredEmpty />
         ) : (
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence>
               {filtered.map((e) => (
                 <ExamCard
                   key={e.id}
@@ -1061,7 +1061,6 @@ function ExamCard({
   };
   return (
     <motion.div
-      layout
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}

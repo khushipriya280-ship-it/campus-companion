@@ -373,7 +373,7 @@ function AssignmentsPage() {
         <EmptyState onAdd={openCreate} hasAny={assignments.length > 0} />
       ) : view === "card" ? (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence>
             {filtered.map((a) => (
               <AssignmentCard
                 key={a.id}
@@ -402,7 +402,7 @@ function AssignmentsPage() {
       ) : (
         <Card className="border-border/60 shadow-soft">
           <ul className="divide-y">
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence>
               {filtered.map((a) => (
                 <AssignmentRow
                   key={a.id}
@@ -704,7 +704,6 @@ function AssignmentCard({
   const done = a.status === "completed";
   return (
     <motion.div
-      layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
@@ -770,7 +769,6 @@ function AssignmentRow({
   const done = a.status === "completed";
   return (
     <motion.li
-      layout
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 8 }}
