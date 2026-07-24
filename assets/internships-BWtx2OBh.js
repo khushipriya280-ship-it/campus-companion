@@ -1,0 +1,1 @@
+import{s as e}from"./utils-CzODWYOG.js";import{t}from"./briefcase-B2Pf3bYv.js";import{t as n}from"./coming-soon-CmGmMEv8.js";var r=e(),i=()=>(0,r.jsx)(n,{icon:t,title:`Internship Organizer`,description:`A Kanban board for every application — saved, applied, interview, offer, rejected. Coming next.`});export{i as component};

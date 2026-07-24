@@ -1,0 +1,1 @@
+import{s as e}from"./utils-CzODWYOG.js";import{t}from"./square-user-round-Bi4bnRps.js";import{t as n}from"./coming-soon-CmGmMEv8.js";var r=e(),i=()=>(0,r.jsx)(n,{icon:t,title:`Portfolio Tracker`,description:`Skills, certificates, achievements and links — with a profile completion score. Coming next.`});export{i as component};

@@ -1,0 +1,1 @@
+import{s as e}from"./utils-CzODWYOG.js";import{t}from"./calendar-days-CDIPWnT2.js";import{t as n}from"./coming-soon-CmGmMEv8.js";var r=e(),i=()=>(0,r.jsx)(n,{icon:t,title:`Calendar`,description:`A monthly view of every assignment, exam, project and internship event. Coming next.`});export{i as component};
