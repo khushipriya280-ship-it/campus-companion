@@ -556,30 +556,28 @@ function ExamsPage() {
           <FilteredEmpty />
         ) : (
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <AnimatePresence>
-              {filtered.map((e) => (
-                <ExamCard
-                  key={e.id}
-                  e={e}
-                  now={now}
-                  onEdit={() => openEdit(e)}
-                  onDelete={() => setDeleteId(e.id)}
-                  onDuplicate={() => duplicate.mutate(e)}
-                  onToggleComplete={() =>
-                    patch.mutate({
-                      id: e.id,
-                      changes: {
-                        status: e._computedStatus === "completed" ? "upcoming" : "completed",
-                        revision_progress: e._computedStatus === "completed" ? e.revision_progress : 100,
-                      },
-                    })
-                  }
-                  onProgress={(v) =>
-                    patch.mutate({ id: e.id, changes: { revision_progress: v } })
-                  }
-                />
-              ))}
-            </AnimatePresence>
+            {filtered.map((e) => (
+              <ExamCard
+                key={e.id}
+                e={e}
+                now={now}
+                onEdit={() => openEdit(e)}
+                onDelete={() => setDeleteId(e.id)}
+                onDuplicate={() => duplicate.mutate(e)}
+                onToggleComplete={() =>
+                  patch.mutate({
+                    id: e.id,
+                    changes: {
+                      status: e._computedStatus === "completed" ? "upcoming" : "completed",
+                      revision_progress: e._computedStatus === "completed" ? e.revision_progress : 100,
+                    },
+                  })
+                }
+                onProgress={(v) =>
+                  patch.mutate({ id: e.id, changes: { revision_progress: v } })
+                }
+              />
+            ))}
           </div>
         )
       ) : view === "agenda" ? (
@@ -1063,7 +1061,6 @@ function ExamCard({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.2 }}
     >
       <Card className="group h-full overflow-hidden border-border/60 shadow-soft transition hover:shadow-elevated">

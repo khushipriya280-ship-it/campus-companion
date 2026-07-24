@@ -312,25 +312,22 @@ function AttendancePage() {
         <EmptyState onAdd={() => { setEditing(null); setDialogOpen(true); }} hasAny={subjects.length > 0} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <AnimatePresence>
-            {filtered.map((s) => (
-              <motion.div
-                key={s.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.2 }}
-              >
-                <SubjectCard
-                  s={s}
-                  onEdit={() => { setEditing(s); setDialogOpen(true); }}
-                  onDelete={() => setDeleting(s)}
-                  onPresent={() => mark.mutate({ s, present: true })}
-                  onAbsent={() => mark.mutate({ s, present: false })}
-                />
-              </motion.div>
-            ))}
-          </AnimatePresence>
+          {filtered.map((s) => (
+            <motion.div
+              key={s.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <SubjectCard
+                s={s}
+                onEdit={() => { setEditing(s); setDialogOpen(true); }}
+                onDelete={() => setDeleting(s)}
+                onPresent={() => mark.mutate({ s, present: true })}
+                onAbsent={() => mark.mutate({ s, present: false })}
+              />
+            </motion.div>
+          ))}
         </div>
       )}
 

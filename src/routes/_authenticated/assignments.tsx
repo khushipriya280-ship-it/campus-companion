@@ -373,9 +373,35 @@ function AssignmentsPage() {
         <EmptyState onAdd={openCreate} hasAny={assignments.length > 0} />
       ) : view === "card" ? (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <AnimatePresence>
+          {filtered.map((a) => (
+            <AssignmentCard
+              key={a.id}
+              a={a}
+              onEdit={() => openEdit(a)}
+              onDelete={() => setDeleteId(a.id)}
+              onToggleComplete={() =>
+                patch.mutate({
+                  id: a.id,
+                  changes: {
+                    status: a.status === "completed" ? "pending" : "completed",
+                    progress: a.status === "completed" ? 0 : 100,
+                  },
+                })
+              }
+              onArchive={() =>
+                patch.mutate({
+                  id: a.id,
+                  changes: { status: a.status === "archived" ? "pending" : "archived" },
+                })
+              }
+            />
+          ))}
+        </div>
+      ) : (
+        <Card className="border-border/60 shadow-soft">
+          <ul className="divide-y">
             {filtered.map((a) => (
-              <AssignmentCard
+              <AssignmentRow
                 key={a.id}
                 a={a}
                 onEdit={() => openEdit(a)}
@@ -397,36 +423,6 @@ function AssignmentsPage() {
                 }
               />
             ))}
-          </AnimatePresence>
-        </div>
-      ) : (
-        <Card className="border-border/60 shadow-soft">
-          <ul className="divide-y">
-            <AnimatePresence>
-              {filtered.map((a) => (
-                <AssignmentRow
-                  key={a.id}
-                  a={a}
-                  onEdit={() => openEdit(a)}
-                  onDelete={() => setDeleteId(a.id)}
-                  onToggleComplete={() =>
-                    patch.mutate({
-                      id: a.id,
-                      changes: {
-                        status: a.status === "completed" ? "pending" : "completed",
-                        progress: a.status === "completed" ? 0 : 100,
-                      },
-                    })
-                  }
-                  onArchive={() =>
-                    patch.mutate({
-                      id: a.id,
-                      changes: { status: a.status === "archived" ? "pending" : "archived" },
-                    })
-                  }
-                />
-              ))}
-            </AnimatePresence>
           </ul>
         </Card>
       )}
@@ -706,7 +702,6 @@ function AssignmentCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
     >
       <Card className={cn("group h-full border-border/60 shadow-soft transition hover:shadow-elevated", done && "opacity-70")}>
@@ -771,7 +766,6 @@ function AssignmentRow({
     <motion.li
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 8 }}
       transition={{ duration: 0.18 }}
       className="flex items-center gap-3 px-4 py-3 hover:bg-muted/40"
     >
